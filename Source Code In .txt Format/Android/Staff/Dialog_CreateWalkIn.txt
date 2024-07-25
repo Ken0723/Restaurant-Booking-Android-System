@@ -1,0 +1,80 @@
+package com.example.staff;
+
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.icu.text.UnicodeSetSpanner;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Spinner;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDialogFragment;
+
+public class Dialog_CreateWalkIn extends AppCompatDialogFragment {
+
+    private Context pContext;
+    private User user;
+    private Spinner spnUser, spnTableId, spnTime;
+
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialog_create_walkin_order, null);
+        pContext = getContext();
+
+        spnUser = view.findViewById(R.id.spnUser);
+        spnTableId = view.findViewById(R.id.spnTableId);
+        spnTime = view.findViewById(R.id.spnTime);
+
+        builder.setView(view)
+                .setTitle("Create Walk-in Order!")
+                .setNegativeButton("Close", null)
+                .setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String userAccount = spnUser.getSelectedItem().toString();
+                                String tableId = spnTableId.getSelectedItem().toString();
+                                String time = spnTime.getSelectedItem().toString();
+                                String userId = "";
+                                if (userAccount.equals("User01")) {
+                                    userId = "11";
+                                } else if (userAccount.equals("User02")) {
+                                    userId = "12";
+                                } else if (userAccount.equals("User03")) {
+                                    userId = "13";
+                                } else if (userAccount.equals("User04")) {
+                                    userId = "14";
+                                } else if (userAccount.equals("User05")) {
+                                    userId = "15";
+                                } else if (userAccount.equals("User06")) {
+                                    userId = "16";
+                                } else if (userAccount.equals("User07")) {
+                                    userId = "17";
+                                } else if (userAccount.equals("User08")) {
+                                    userId = "18";
+                                }
+
+                                ServerRequests serverRequests = new ServerRequests(pContext);
+                                serverRequests.createWalkIn(user.getRestaurantID(), userId, tableId, time, new CreateWalkInCallBack() {
+                                    @Override
+                                    public void done(Boolean isSuccess) {
+                                        if (isSuccess) {
+                                            Toast.makeText(pContext, "Create Completed!", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Toast.makeText(pContext, "Fail to create!", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                            }
+                        });
+
+         pContext = getContext();
+        return builder.create();
+    }
+    public void getData(User userData) {
+        user = userData;
+    }
+}

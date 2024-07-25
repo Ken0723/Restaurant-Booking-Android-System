@@ -1,0 +1,223 @@
+package com.example.staff;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.ArrayList;
+
+public class Chef extends AppCompatActivity {
+
+    private User user;
+    private String firstName, lastName, email, password, id, phone, address, restaurantId, jobTitle;
+    private ServerRequests serverRequests;
+    private CountDownTimer countDownTimer;
+    private long timeLeftInMilliSeconds = 15000;
+    private Button btnStart;
+    private boolean isStartTimer = false;
+    private ListView lvOrderedFood;
+    private ArrayList<Food> foodArrayList = new ArrayList<>();
+    private ArrayList<Order> orderArrayList = new ArrayList<>();
+    private ArrayList<OrderFood> orderFoodArrayList = new ArrayList<>();
+
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.chef);
+
+        firstName = getIntent().getStringExtra("firstName");
+        lastName = getIntent().getStringExtra("lastName");
+        email = getIntent().getStringExtra("email");
+        password = getIntent().getStringExtra("password");
+        id = getIntent().getStringExtra("id");
+        phone = getIntent().getStringExtra("phone");
+        address = getIntent().getStringExtra("address");
+        restaurantId = getIntent().getStringExtra("restaurantId");
+        jobTitle = getIntent().getStringExtra("jobTitle");
+
+        user = new User(id, firstName, lastName, email, password, phone, address, jobTitle, restaurantId);
+
+        lvOrderedFood = findViewById(R.id.lvOrderedFood);
+        btnStart = findViewById(R.id.btnStart);
+        serverRequests = new ServerRequests(this);
+
+        getAllFood();
+    }
+    public void getAllFood() {
+        serverRequests.getAllFood(new GetAllFoodCallBack() {
+            @Override
+            public void done(ArrayList arrayList) {
+                if (arrayList != null && arrayList.size() > 0) {
+                    foodArrayList = arrayList;
+                } else {
+                    Toast.makeText(Chef.this, "Cannot get the food list", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+    public void onClickStart(View v) {
+        if (isStartTimer) {
+            stopTimer();
+        } else {
+            startTimer();
+        }
+    }
+    public void stopTimer() {
+        isStartTimer = false;
+        btnStart.setText("Start");
+        countDownTimer.cancel();
+    }
+    public void startTimer() {
+        startServerRequests();
+        isStartTimer = true;
+        btnStart.setText("Stop");
+        countDownTimer = new CountDownTimer(timeLeftInMilliSeconds, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                timeLeftInMilliSeconds = millisUntilFinished;
+                if ((timeLeftInMilliSeconds % 60000 / 1000) == 0) {
+                    startServerRequests();
+                    timeLeftInMilliSeconds = 15000;
+                    startTimer();
+                }
+            }
+
+            @Override
+            public void onFinish() {
+
+            }
+        }.start();
+    }
+    public void startServerRequests() {
+        serverRequests.getOrderedFood(new GetOrderedFoodCallBack() {
+            @Override
+            public void done(ArrayList arrayList) {
+                if (arrayList != null && arrayList.size() > 0) {
+                    orderArrayList = (ArrayList<Order>) arrayList.get(0);
+                    orderFoodArrayList = (ArrayList<OrderFood>) arrayList.get(1);
+
+                    if (orderArrayList != null) {
+                        setLvOrderedFoodAdapter();
+                    }
+                }
+            }
+        });
+    }
+    public void setLvOrderedFoodAdapter() {
+        OrderedFoodAdapter orderedFoodAdapter = new OrderedFoodAdapter();
+        lvOrderedFood.setAdapter(orderedFoodAdapter);
+    }
+    public class OrderedFoodAdapter extends BaseAdapter{
+
+        @Override
+        public int getCount() {
+            return orderArrayList.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            convertView = getLayoutInflater().inflate(R.layout.view_ordered_food, null);
+            TextView tvOrderId = convertView.findViewById(R.id.tvOrderId);
+            TextView tvStatus = convertView.findViewById(R.id.tvStatus);
+            EditText etFood = convertView.findViewById(R.id.etFood);
+            Button btnFoodServed = convertView.findViewById(R.id.btnFoodServed);
+
+            Order order = orderArrayList.get(position);
+            id = order.getId();
+            tvOrderId.setText("Order ID: " + order.getId());
+            tvStatus.setText(order.getStatus());
+            btnFoodServed.setTag(id);
+
+            for (int i = 0; i < orderFoodArrayList.size();i++){
+                OrderFood orderFood = orderFoodArrayList.get(i);
+                if (orderFood.getOrderID().equals(id)) {
+                    String foodName = "";
+                    for(int k = 0; k < foodArrayList.size(); k++) {
+                        Food food = foodArrayList.get(k);
+                        if (food.getCode().equals(orderFood.getFoodItemCode())) {
+                            foodName = food.getName();
+                        }
+                    }
+                    String qty = orderFood.getQty();
+                    String data = foodName + "\tX\t" + qty + "\n";
+                    etFood.setText(etFood.getText().toString() + data);
+                }
+            }
+            btnFoodServed.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String orderId = v.getTag().toString();
+                    serverRequests.chefFinishCooking(orderId, new GetFinishCookingCallBack() {
+                        @Override
+                        public void done(Boolean isSuccess) {
+                            if (isSuccess) {
+                                startTimer();
+                                Toast.makeText(Chef.this, "Updated", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(Chef.this, "Fail to update!", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }
+            });
+            return convertView;
+        }
+    }
+
+    public void onClickWaiter(View v) {
+        if (isStartTimer) {
+            stopTimer();
+        }
+        this.finish();
+        Intent intent = new Intent(Chef.this, Waiter.class);
+        intent.putExtra("firstName", user.firstName);
+        intent.putExtra("lastName", user.lastName);
+        intent.putExtra("email", user.email);
+        intent.putExtra("password", user.password);
+        intent.putExtra("id", user.accID);
+        intent.putExtra("phone", user.phone);
+        intent.putExtra("address", user.address);
+        intent.putExtra("restaurantId", user.restaurantID);
+        intent.putExtra("jobTitle", user.jobTitle);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+    public void onClickTable(View v) {
+        if (isStartTimer) {
+            stopTimer();
+        }
+        this.finish();
+        Intent intent = new Intent(Chef.this, TableStatus.class);
+        intent.putExtra("firstName", user.firstName);
+        intent.putExtra("lastName", user.lastName);
+        intent.putExtra("email", user.email);
+        intent.putExtra("password", user.password);
+        intent.putExtra("id", user.accID);
+        intent.putExtra("phone", user.phone);
+        intent.putExtra("address", user.address);
+        intent.putExtra("restaurantId", user.restaurantID);
+        intent.putExtra("jobTitle", user.jobTitle);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+}

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/txtVIew"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:drawableLeft="@drawable/_register_foreground"
+        android:text="Register"
+        android:textColor="#000000"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="205dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txtViewFirstName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/_name_foreground"
+                android:text="First name"
+                android:textColor="#000000"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/etxtFirstName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="type here!"
+                android:inputType="textPersonName" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txtViewLastName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/_name_foreground"
+                android:text="Last name"
+                android:textColor="#000000"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/etxtLastNamet"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="type here!"
+                android:inputType="textPersonName" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txtViewEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/_email_foreground"
+        android:text="Email address"
+        android:textColor="#000000"
+        android:textSize="18sp" />
+
+    <EditText
+        android:id="@+id/etxtEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="type here!"
+        android:inputType="textEmailAddress" />
+
+    <TextView
+        android:id="@+id/txtViewPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/_password_foreground"
+        android:text="Password"
+        android:textColor="#000000"
+        android:textSize="18sp" />
+
+    <EditText
+        android:id="@+id/etxtPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="type here!"
+        android:inputType="textPassword" />
+
+    <TextView
+        android:id="@+id/txtPhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/_phone_foreground"
+        android:text="Phone"
+        android:textColor="#000000" />
+
+    <EditText
+        android:id="@+id/etxtPhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="type here!"
+        android:inputType="textPersonName" />
+
+    <TextView
+        android:id="@+id/txtAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/_home_foreground"
+        android:text="Address"
+        android:textColor="#000000" />
+
+    <EditText
+        android:id="@+id/etxtAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30px"
+        android:ems="10"
+        android:hint="type here!"
+        android:inputType="textPersonName" />
+
+    <Button
+        android:id="@+id/btnRegister"
+        android:layout_width="270dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="30dp"
+        android:background="#FFFDFD"
+        android:onClick="onClickSubmit"
+        android:text="Register"
+        android:textColor="#03A9F4" />
+
+    <LinearLayout
+        android:layout_width="270dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/txtViewHaveAccount"
+            android:layout_width="135dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Already a Member?"
+            android:textColor="#000000"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtViewSignIn"
+            android:layout_width="135dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:onClick="onClickSignIn"
+            android:text="Go to Sign in"
+            android:textColor="#000000" />
+    </LinearLayout>
+
+</LinearLayout>

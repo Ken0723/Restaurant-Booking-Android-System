@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href="./css/style2.css" />
+    <link rel="stylesheet" href="./css/style.css" />
+    <style>
+        body {
+            background-image: url("./images/PPMnOZM.jpg");
+            background-repeat: no-repeat;
+            font-family: Arial;
+            font-size: 17px;
+            padding: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <center>
+        <h1>PPM System</h1>
+        <h2>
+            <b>Login Page</b>
+        </h2>
+        <div class="login-page">
+            <div class="form">
+                <form class="login-form" method="POST" action="./loginController.php">
+                    <input type="text" name="username" id="username" placeholder="Username" required />
+                    <input type="password" name="password" id="password" placeholder="Password" required />
+                    <button type="submit">login</button>
+                    <p class="message">
+                        Not registered?
+                        <a href="./register.php">Create an account</a>
+                    </p>
+                    <p class="message">
+                        If you have any question, please call 3928 2640.
+                    </p>
+                </form>
+            </div>
+        </div>
+    </center>
+</body>
+
+</html>

@@ -1,0 +1,947 @@
+package com.example.staff;
+
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.os.AsyncTask;
+import android.util.Log;
+import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.lang.reflect.Array;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.sql.Connection;
+import java.util.ArrayList;
+
+public class ServerRequests {
+    ProgressDialog progressDialog;
+
+    public static final String SERVER_ADDRESS = "http://52.91.97.200/FYP/";
+    public static final int TIMEOUT_CONNECTION = 5000;
+
+    public ServerRequests(Context context) {
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setCancelable(false);
+        progressDialog.setTitle("Processing");
+        progressDialog.setMessage("Please wait...");
+    }
+    public void loginAccountInBackground(User user, GetUserCallBack callBack) {
+        progressDialog.show();
+        new loginAsyncTask(user, callBack).execute();
+    }
+    public void getCallingAndFoodServed(GetCallingAndFoodServedCallBack callBack) {
+        progressDialog.show();
+        new getCallingAndFoodServedAsyncTask(callBack).execute();
+    }
+    public void waiterCallingFinish(String id, GetCallingFinishCallBack callBack) {
+        progressDialog.show();
+        new waiterCallingFinishAsyncTask(id, callBack).execute();
+    }
+    public void waiterServiceFinish(String id, GetServiceFinishCallBack callBack) {
+        progressDialog.show();
+        new waiterServiceFinishAsyncTask(id, callBack).execute();
+    }
+    public void getAllFood(GetAllFoodCallBack callBack) {
+        new getAllFoodAsyncTask(callBack).execute();
+    }
+    public void getOrderedFood(GetOrderedFoodCallBack callBack) {
+        progressDialog.show();
+        new chefGetOrderAsyncTask(callBack).execute();
+    }
+    public void chefFinishCooking(String id, GetFinishCookingCallBack callBack) {
+        progressDialog.show();
+        new chefFinishCookingAsyncTask(id, callBack).execute();
+    }
+    public void getTable(GetTableCallBack callBack) {
+        progressDialog.show();
+        new getTableAsyncTask(callBack).execute();
+    }
+    public void updateTableStatus(String id, String status, UpdateTableStatusCallBack callBack) {
+        progressDialog.show();
+        new updateTableStatusAsyncTask(id, status, callBack).execute();
+    }
+    public void createWalkIn(String restaurantId, String account, String tableId, String time, CreateWalkInCallBack callBack) {
+        progressDialog.show();
+        new CreateWalkInAsyncTask(restaurantId, account, tableId, time, callBack).execute();
+    }
+    public void getAllStartingReservation(GetAllStartingReservationCallBack callBack) {
+        new getAllStartingReservationAsyncTask(callBack).execute();
+    }
+    public void finishOrder(Reservation reservation,  FinishOrderCallBack callBack) {
+        progressDialog.show();
+        new FinishOrderAsyncTask(reservation, callBack).execute();
+    }
+
+
+    public class loginAsyncTask extends AsyncTask<Void, Void, User> {
+
+        private GetUserCallBack callBack;
+        private User user;
+
+        public loginAsyncTask(User user, GetUserCallBack callBack) {
+            this.user = user;
+            this.callBack = callBack;
+        }
+        @Override
+        protected User doInBackground(Void... voids) {
+            try {
+                URL url = new URL(SERVER_ADDRESS + "Login.php");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+
+                OutputStream ops = connection.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ops));
+
+                String data = "email=" + user.email + "&password=" + user.password;
+                writer.write(data);
+                writer.flush();
+                writer.close();
+                ops.close();
+
+                InputStream ips = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(ips));
+                StringBuffer buffer = new StringBuffer();
+                String line = "";
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+                String result = buffer.toString();
+                if (result != null && result.length() > 0) {
+                    JSONObject jsonObject = new JSONObject(result);
+                    user.setAccID(jsonObject.getString("ID"));
+
+                    url = new URL(SERVER_ADDRESS + "SelectEmployee.php");
+                    connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("POST");
+                    connection.setDoInput(true);
+                    connection.setDoOutput(true);
+                    connection.setConnectTimeout(TIMEOUT_CONNECTION);
+
+                    ops = connection.getOutputStream();
+                    writer = new BufferedWriter(new OutputStreamWriter(ops));
+
+                    data = "userID=" + user.accID;
+
+                    writer.write(data);
+                    writer.flush();
+                    writer.close();
+                    ops.close();
+
+                    ips = connection.getInputStream();
+                    reader = new BufferedReader(new InputStreamReader(ips));
+
+                    buffer = new StringBuffer();
+                    line = "";
+                    while ((line = reader.readLine()) != null) {
+                        buffer.append(line + "\n");
+                    }
+                    result = buffer.toString();
+                    jsonObject = new JSONObject(result);
+                    user.setFirstName(jsonObject.getString("FirstName"));
+                    user.setLastName(jsonObject.getString("LastName"));
+                    user.setPhone(jsonObject.getString("Phone"));
+                    user.setAddress(jsonObject.getString("Address"));
+                    user.setRestaurantID(jsonObject.getString("RestaurantID"));
+                    user.setJobTitle(jsonObject.getString("JobTitle"));
+                    reader.close();
+                    ips.close();
+                } else {
+                    user = null;
+                }
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return user;
+        }
+        protected void onPostExecute(User returnedUser) {
+            super.onPostExecute(returnedUser);
+                progressDialog.dismiss();
+                callBack.done(returnedUser);
+        }
+    }
+
+    public class getCallingAndFoodServedAsyncTask extends AsyncTask<Void, Void, ArrayList> {
+
+        private GetCallingAndFoodServedCallBack callBack;
+        private ArrayList<Table> tableArrayList = new ArrayList<>();
+        private ArrayList<Order> orderArrayList = new ArrayList<>();
+        private ArrayList<OrderFood> orderFoodArrayList = new ArrayList<>();
+        private ArrayList<Reservation> reservationArrayList = new ArrayList<>();
+        private ArrayList arrayList = new ArrayList();
+        public getCallingAndFoodServedAsyncTask(GetCallingAndFoodServedCallBack callBack) {
+            this.callBack = callBack;
+        }
+
+        @Override
+        protected ArrayList doInBackground(Void... voids) {
+            try {
+                URL url = new URL(SERVER_ADDRESS + "GetAllTableByCalling.php");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+
+                InputStream ips = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(ips));
+                StringBuffer buffer = new StringBuffer();
+                String line = "";
+
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+                String result = buffer.toString();
+                if (result != null && result.length() > 0) {
+                    JSONArray jsonArray = new JSONArray(result);
+                    Table table;
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject data = jsonArray.getJSONObject(i);
+                        table = new Table(Integer.parseInt(data.getString("ID")), Integer.parseInt(data.getString("TableNum")), Integer.parseInt(data.getString("TableSize")), data.getString("Status"));
+                        tableArrayList.add(table);
+                    }
+                }
+                url = new URL(SERVER_ADDRESS + "GetOrderByFinished.php");
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+
+                ips = connection.getInputStream();
+                reader = new BufferedReader(new InputStreamReader(ips));
+                buffer = new StringBuffer();
+                line = "";
+
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+                result = buffer.toString();
+                if(result != null && result.length() > 0) {
+                    JSONArray jsonArray = new JSONArray(result);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        Order order = new Order();
+                        order.setId(jsonObject.getString("ID"));
+                        order.setReservationId(jsonObject.getString("ReservationID"));
+                        order.setStatus(jsonObject.getString("Status"));
+                        order.setComments(jsonObject.getString("Comments"));
+                        orderArrayList.add(order);
+                    }
+                }
+                url = new URL(SERVER_ADDRESS + "GetOrderedFood.php");
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+
+                ips = connection.getInputStream();
+                reader = new BufferedReader(new InputStreamReader(ips));
+                buffer = new StringBuffer();
+                line = "";
+
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+                result = buffer.toString();
+                if(result != null && result.length() > 0) {
+                    JSONArray jsonArray = new JSONArray(result);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        orderFoodArrayList.add(new OrderFood(
+                                jsonObject.getString("OrderID"),
+                                jsonObject.getString("FoodItemCode"),
+                                jsonObject.getString("Qty")
+                        ));
+                    }
+                }
+                if (orderArrayList != null && orderArrayList.size() > 0) {
+                    for (int i = 0; i < orderArrayList.size(); i++) {
+                        url = new URL(SERVER_ADDRESS + "GetReservationById.php");
+                        connection = (HttpURLConnection) url.openConnection();
+                        connection.setRequestMethod("POST");
+                        connection.setDoInput(true);
+                        connection.setDoOutput(true);
+
+                        OutputStream ops = connection.getOutputStream();
+                        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ops));
+
+                        Order order = orderArrayList.get(i);
+                        String data = "reservationId=" + order.getReservationId();
+                        writer.write(data);
+                        writer.flush();
+                        writer.close();
+                        ops.close();
+
+                        ips = connection.getInputStream();
+                        reader = new BufferedReader(new InputStreamReader(ips));
+                        buffer = new StringBuffer();
+                        line = "";
+
+                        while ((line = reader.readLine()) != null) {
+                            buffer.append(line + "\n");
+                        }
+                        result = buffer.toString();
+                        if (result != null && result.length() > 0) {
+                            JSONObject jsonObject = new JSONObject(result);
+                            reservationArrayList.add(new Reservation(
+                                    jsonObject.getString("ReservationID"),
+                                    jsonObject.getString("RestaurantID"),
+                                    jsonObject.getString("CustomerID"),
+                                    jsonObject.getString("TableID"),
+                                    jsonObject.getString("ReservationDate"),
+                                    jsonObject.getString("ReservationsTime"),
+                                    jsonObject.getString("Status")
+                            ));
+                        }
+                    }
+                }
+                arrayList.add(tableArrayList);
+                arrayList.add(orderArrayList);
+                arrayList.add(orderFoodArrayList);
+                arrayList.add(reservationArrayList);
+
+                connection.disconnect();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }  catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return arrayList;
+        }
+
+        protected void onPostExecute(ArrayList arrayList) {
+            super.onPostExecute(arrayList);
+            progressDialog.dismiss();
+            callBack.done(arrayList);
+        }
+    }
+
+    public class waiterCallingFinishAsyncTask extends AsyncTask<Void, Void, Boolean> {
+
+        private Boolean isSuccess;
+        private GetCallingFinishCallBack callBack;
+        private String id;
+
+        public waiterCallingFinishAsyncTask(String id, GetCallingFinishCallBack callBack) {
+            this.id = id;
+            this.callBack = callBack;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                URL url = new URL(SERVER_ADDRESS + "WaiterCallingFinish.php");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+
+                OutputStream ops = connection.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ops));
+
+                String data = "ID=" + id;
+                writer.write(data);
+                writer.flush();
+                writer.close();
+                ops.close();
+
+                InputStream ips = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(ips));
+                StringBuffer buffer = new StringBuffer();
+                String line = "";
+
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+                String result = buffer.toString();
+                if (result != null && result.length() > 0) {
+                    isSuccess = true;
+                } else {
+                    isSuccess = false;
+                }
+                connection.disconnect();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return isSuccess;
+        }
+        protected void onPostExecute(Boolean isSuccess) {
+            super.onPostExecute(isSuccess);
+            progressDialog.dismiss();
+            callBack.done(isSuccess);
+        }
+    }
+
+    public class waiterServiceFinishAsyncTask extends AsyncTask<Void, Void, Boolean> {
+
+        private String id;
+        private Boolean isSuccess;
+        private GetServiceFinishCallBack callBack;
+
+        public waiterServiceFinishAsyncTask(String id, GetServiceFinishCallBack callBack) {
+            this.id = id;
+            this.callBack = callBack;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                URL url = new URL(SERVER_ADDRESS + "WaiterServiceFinish.php");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+
+                OutputStream ops = connection.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ops));
+
+                String data = "ID=" + id;
+                writer.write(data);
+                writer.flush();
+                writer.close();
+                ops.close();
+
+                InputStream ips = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(ips));
+                StringBuffer buffer = new StringBuffer();
+                String line = "";
+
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+                String result = buffer.toString();
+                if (result != null && result.length() > 0) {
+                    isSuccess = true;
+                } else {
+                    isSuccess = false;
+                }
+                connection.disconnect();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return isSuccess;
+        }
+        protected void onPostExecute(Boolean isSuccess) {
+            super.onPostExecute(isSuccess);
+            progressDialog.dismiss();
+            callBack.done(isSuccess);
+        }
+    }
+
+    public class getAllFoodAsyncTask extends AsyncTask<Void, Void, ArrayList> {
+
+        private ArrayList<Food> foodArrayList = new ArrayList<>();
+        private GetAllFoodCallBack callBack;
+
+        public getAllFoodAsyncTask(GetAllFoodCallBack callBack) {
+            this.callBack = callBack;
+        }
+        @Override
+        protected ArrayList doInBackground(Void... voids) {
+            try {
+                URL url = new URL(SERVER_ADDRESS + "GetAllFood.php");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+
+                InputStream ips = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(ips));
+                StringBuffer buffer = new StringBuffer();
+                String line = "";
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+                String result = buffer.toString();
+                if (result == null && result.length() < 1) {
+                    foodArrayList = null;
+                } else {
+                    JSONArray jsonArray = new JSONArray(result);
+                    for(int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject foodData = jsonArray.getJSONObject(i);
+                        foodArrayList.add(new Food(
+                                foodData.getString("Code"),
+                                foodData.getString("Name"),
+                                foodData.getString("FoodCategory"),
+                                Double.parseDouble(foodData.getString("PriceEach")),
+                                foodData.getString("Description")));
+                    }
+                }
+                connection.disconnect();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return foodArrayList;
+        }
+        protected void onPostExecute(ArrayList foodArrayList) {
+            super.onPostExecute(foodArrayList);
+            progressDialog.dismiss();
+            callBack.done(foodArrayList);
+        }
+    }
+
+    public class chefGetOrderAsyncTask extends AsyncTask<Void, Void, ArrayList> {
+
+        private GetOrderedFoodCallBack callBack;
+        private ArrayList arrayList = new ArrayList();
+        private ArrayList<Order> orderArrayList = new ArrayList<>();
+        private ArrayList<OrderFood> orderFoodArrayList = new ArrayList<>();
+
+        public chefGetOrderAsyncTask(GetOrderedFoodCallBack callBack) {
+            this.callBack = callBack;
+        }
+
+        @Override
+        protected ArrayList doInBackground(Void... voids) {
+            try {
+                URL url = new URL(SERVER_ADDRESS + "GetOrderBySent.php");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+
+                InputStream ips = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(ips));
+                StringBuffer buffer = new StringBuffer();
+                String line = "";
+
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+                String result = buffer.toString();
+                if (result != null && result.length() > 0) {
+                    JSONArray jsonArray = new JSONArray(result);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        Order order = new Order();
+                        order.setId(jsonObject.getString("ID"));
+                        order.setReservationId(jsonObject.getString("ReservationID"));
+                        order.setStatus(jsonObject.getString("Status"));
+                        order.setComments(jsonObject.getString("Comments"));
+                        orderArrayList.add(order);
+                    }
+                }
+                url = new URL(SERVER_ADDRESS + "GetOrderedFood.php");
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+
+                ips = connection.getInputStream();
+                reader = new BufferedReader(new InputStreamReader(ips));
+                buffer = new StringBuffer();
+                line = "";
+
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+                result = buffer.toString();
+                if (result != null && result.length() > 0) {
+                    JSONArray jsonArray = new JSONArray(result);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        orderFoodArrayList.add(new OrderFood(
+                                jsonObject.getString("OrderID"),
+                                jsonObject.getString("FoodItemCode"),
+                                jsonObject.getString("Qty")
+                        ));
+                    }
+                }
+                arrayList.add(orderArrayList);
+                arrayList.add(orderFoodArrayList);
+
+                connection.disconnect();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }  catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return arrayList;
+        }
+        protected void onPostExecute(ArrayList arrayList) {
+            super.onPostExecute(arrayList);
+            progressDialog.dismiss();
+            callBack.done(arrayList);
+        }
+    }
+
+    public class chefFinishCookingAsyncTask extends AsyncTask<Void, Void, Boolean> {
+
+        private String id;
+        private Boolean isSuccess;
+        private GetFinishCookingCallBack callBack;
+
+        public chefFinishCookingAsyncTask(String id, GetFinishCookingCallBack callBack) {
+            this.id = id;
+            this.callBack = callBack;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                URL url = new URL(SERVER_ADDRESS + "ChefFinishCooking.php");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+
+                OutputStream ops = connection.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ops));
+
+                String data = "ID=" + id;
+                writer.write(data);
+                writer.flush();
+                writer.close();
+                ops.close();
+
+                InputStream ips = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(ips));
+                StringBuffer buffer = new StringBuffer();
+                String line = "";
+
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+                String result = buffer.toString();
+                if (result != null && result.length() > 0) {
+                    isSuccess = true;
+                } else {
+                    isSuccess = false;
+                }
+                connection.disconnect();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return isSuccess;
+        }
+        protected void onPostExecute(Boolean isSuccess) {
+            super.onPostExecute(isSuccess);
+            progressDialog.dismiss();
+            callBack.done(isSuccess);
+        }
+    }
+
+    public class getTableAsyncTask extends AsyncTask<Void, Void, ArrayList> {
+
+        GetTableCallBack getTableCallBack;
+        ArrayList<Table> tableArray = new ArrayList<Table>();
+
+        public getTableAsyncTask(GetTableCallBack getTableCallBack) {
+            this.getTableCallBack = getTableCallBack;
+        }
+
+        @Override
+        protected ArrayList doInBackground(Void... voids) {
+            try {
+                URL url = new URL(SERVER_ADDRESS + "SelectTable.php");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+
+
+                InputStream ips = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(ips));
+                StringBuffer buffer = new StringBuffer();
+                String line = "";
+
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+                String result = buffer.toString();
+                if (result != null && result.length() > 0) {
+                    JSONArray jsonArray = new JSONArray(result);
+                    Table table;
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject data = jsonArray.getJSONObject(i);
+                        table = new Table(Integer.parseInt(data.getString("ID")), Integer.parseInt(data.getString("TableNum")), Integer.parseInt(data.getString("TableSize")), data.getString("Status"));
+                        tableArray.add(table);
+                    }
+                } else {
+                    tableArray = null;
+                }
+                connection.disconnect();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }  catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return tableArray;
+        }
+        protected void onPostExecute(ArrayList tableArray) {
+            super.onPostExecute(tableArray);
+            progressDialog.dismiss();
+            getTableCallBack.done(tableArray);
+        }
+    }
+
+    public class updateTableStatusAsyncTask extends AsyncTask<Void, Void, Boolean> {
+
+        private Boolean isSuccess;
+        private UpdateTableStatusCallBack callBack;
+        private String id;
+        private String status;
+
+        public updateTableStatusAsyncTask(String id, String status, UpdateTableStatusCallBack callBack) {
+            this.id = id;
+            this.status = status;
+            this.callBack = callBack;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                URL url = new URL(SERVER_ADDRESS + "UpdateTableStatus.php");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+
+                OutputStream ops = connection.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ops));
+
+                String data = "ID=" + id + "&Status=" + status;
+                writer.write(data);
+                writer.flush();
+                writer.close();
+                ops.close();
+
+                InputStream ips = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(ips));
+                StringBuffer buffer = new StringBuffer();
+                String line = "";
+
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+                String result = buffer.toString();
+                if (result != null && result.length() > 0) {
+                    isSuccess = true;
+                } else {
+                    isSuccess = false;
+                }
+                connection.disconnect();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return isSuccess;
+        }
+        protected void onPostExecute(Boolean isSuccess) {
+            super.onPostExecute(isSuccess);
+            progressDialog.dismiss();
+            callBack.done(isSuccess);
+        }
+    }
+
+    public class CreateWalkInAsyncTask extends AsyncTask<Void, Void, Boolean> {
+
+        private CreateWalkInCallBack callBack;
+        private Boolean isSuccess;
+        private String account, tableId, time, restaurantId;
+
+        public CreateWalkInAsyncTask(String restaurantId, String account, String tableId, String time, CreateWalkInCallBack callBack) {
+            this.restaurantId = restaurantId;
+            this.account = account;
+            this.tableId = tableId;
+            this.time = time;
+            this.callBack = callBack;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                URL url = new URL(SERVER_ADDRESS + "CreateWalkIn.php");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+
+                OutputStream ops = connection.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ops));
+
+                String data = "account=" + account + "&tableId=" + tableId + "&time=" + time + "&restaurantId=" + restaurantId;
+                writer.write(data);
+                writer.flush();
+                writer.close();
+                ops.close();
+
+                InputStream ips = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(ips));
+                StringBuffer buffer = new StringBuffer();
+                String line = "";
+
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+                String result = buffer.toString();
+                if (result != null && result.length() > 0) {
+                    isSuccess = true;
+                } else {
+                    isSuccess = false;
+                }
+                connection.disconnect();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return isSuccess;
+        }
+        protected void onPostExecute(Boolean isSuccess) {
+            super.onPostExecute(isSuccess);
+            progressDialog.dismiss();
+            callBack.done(isSuccess);
+        }
+    }
+
+    public class getAllStartingReservationAsyncTask extends AsyncTask<Void, Void, ArrayList> {
+
+        private ArrayList<Reservation> reservationArrayList = new ArrayList<>();
+        private GetAllStartingReservationCallBack callBack;
+
+        public getAllStartingReservationAsyncTask(GetAllStartingReservationCallBack callBack) {
+            this.callBack = callBack;
+        }
+
+        @Override
+        protected ArrayList doInBackground(Void... voids) {
+            try {
+                URL url = new URL(SERVER_ADDRESS + "GetAllStartingReservation.php");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+
+                InputStream ips = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(ips));
+                StringBuffer buffer = new StringBuffer();
+                String line = "";
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+                String result = buffer.toString();
+                if (result == null && result.length() < 1) {
+                    reservationArrayList = null;
+                } else {
+                    JSONArray jsonArray = new JSONArray(result);
+                    for(int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject reservationData = jsonArray.getJSONObject(i);
+                        reservationArrayList.add(new Reservation(
+                                reservationData.getString("ReservationID"),
+                                reservationData.getString("RestaurantID"),
+                                reservationData.getString("CustomerID"),
+                                reservationData.getString("TableID"),
+                                reservationData.getString("ReservationDate"),
+                                reservationData.getString("ReservationsTime"),
+                                reservationData.getString("Status")));
+                    }
+                }
+                connection.disconnect();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return reservationArrayList;
+        }
+        protected void onPostExecute(ArrayList foodArrayList) {
+            super.onPostExecute(foodArrayList);
+            progressDialog.dismiss();
+            callBack.done(foodArrayList);
+        }
+    }
+
+    public class FinishOrderAsyncTask extends AsyncTask<Void, Void, Boolean> {
+
+        private FinishOrderCallBack callBack;
+        private Boolean isSuccess;
+        private Reservation reservation;
+
+        public FinishOrderAsyncTask(Reservation reservation, FinishOrderCallBack callBack) {
+            this.reservation = reservation;
+            this.callBack = callBack;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                URL url = new URL(SERVER_ADDRESS + "FinishOrder.php");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+
+                OutputStream ops = connection.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ops));
+
+                String data = "reservationId=" + reservation.getReservationID();
+                writer.write(data);
+                writer.flush();
+                writer.close();
+                ops.close();
+
+                InputStream ips = connection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(ips));
+                StringBuffer buffer = new StringBuffer();
+                String line = "";
+
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+                String result = buffer.toString();
+                if (result != null && result.length() > 0) {
+                    isSuccess = true;
+                } else {
+                    isSuccess = false;
+                }
+                connection.disconnect();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return isSuccess;
+        }
+        protected void onPostExecute(Boolean isSuccess) {
+            super.onPostExecute(isSuccess);
+            progressDialog.dismiss();
+            callBack.done(isSuccess);
+        }
+    }
+}

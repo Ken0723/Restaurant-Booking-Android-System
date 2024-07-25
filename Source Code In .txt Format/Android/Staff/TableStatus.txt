@@ -1,0 +1,237 @@
+package com.example.staff;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.ArrayList;
+
+public class TableStatus extends AppCompatActivity {
+
+    private User user;
+    private String firstName, lastName, email, password, id, phone, address, restaurantId, jobTitle;
+    private ArrayList<Table> table;
+    private ArrayList<Reservation> reservationArrayList;
+
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.table_status);
+
+        firstName = getIntent().getStringExtra("firstName");
+        lastName = getIntent().getStringExtra("lastName");
+        email = getIntent().getStringExtra("email");
+        password = getIntent().getStringExtra("password");
+        id = getIntent().getStringExtra("id");
+        phone = getIntent().getStringExtra("phone");
+        address = getIntent().getStringExtra("address");
+        restaurantId = getIntent().getStringExtra("restaurantId");
+        jobTitle = getIntent().getStringExtra("jobTitle");
+
+        user = new User(id, firstName, lastName, email, password, phone, address, jobTitle, restaurantId);
+        getTableStatus();
+    }
+    public void getTableStatus() {
+        ServerRequests serverRequests = new ServerRequests(this);
+        serverRequests.getTable(new GetTableCallBack() {
+            @Override
+            public void done(ArrayList tableArray) {
+                if (tableArray != null) {
+                    table = tableArray;
+                    changeTableStatus();
+                } else {
+                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(TableStatus.this);
+                    dialogBuilder.setMessage("Fail to connect to server, please try it again");
+                    dialogBuilder.setPositiveButton("OK", null);
+                    dialogBuilder.show();
+                }
+            }
+        });
+        serverRequests.getAllStartingReservation(new GetAllStartingReservationCallBack() {
+            @Override
+            public void done(ArrayList arrayList) {
+                if (arrayList != null && arrayList.size() > 0) {
+                    reservationArrayList = arrayList;
+                } else {
+                    Toast.makeText(TableStatus.this, "Cannot get the reservation data", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+    public void onClickTable(View v) {
+        Dialog_Table dialog;
+        Reservation reservation = new Reservation();
+        switch(v.getId()) {
+            case R.id.table1:
+                dialog = new Dialog_Table();
+                if (reservationArrayList != null && reservationArrayList.size() > 0) {
+                    for (int i = 0; i < reservationArrayList.size(); i++) {
+                        Reservation loopData = reservationArrayList.get(i);
+                        if (loopData.getTableID().equals("1")) {
+                            reservation = loopData;
+                            break;
+                        }
+                    }
+                }
+                dialog.getData(table.get(0), user, reservation);
+                dialog.show(getSupportFragmentManager(), "Table dialog");
+                break;
+            case R.id.table2:
+                dialog = new Dialog_Table();
+                if (reservationArrayList != null && reservationArrayList.size() > 0) {
+                    for (int i = 0; i < reservationArrayList.size(); i++) {
+                        Reservation loopData = reservationArrayList.get(i);
+                        if (loopData.getTableID().equals("2")) {
+                            reservation = loopData;
+                            break;
+                        }
+                    }
+                }
+                dialog.getData(table.get(1), user, reservation);
+                dialog.show(getSupportFragmentManager(), "Table dialog");
+                break;
+            case R.id.table3:
+                dialog = new Dialog_Table();
+                if (reservationArrayList != null && reservationArrayList.size() > 0) {
+                    for (int i = 0; i < reservationArrayList.size(); i++) {
+                        Reservation loopData = reservationArrayList.get(i);
+                        if (loopData.getTableID().equals("3")) {
+                            reservation = loopData;
+                            break;
+                        }
+                    }
+                }
+                dialog.getData(table.get(2), user, reservation);
+                dialog.show(getSupportFragmentManager(), "Table dialog");
+                break;
+            case R.id.table4:
+                dialog = new Dialog_Table();
+                if (reservationArrayList != null && reservationArrayList.size() > 0) {
+                    for (int i = 0; i < reservationArrayList.size(); i++) {
+                        Reservation loopData = reservationArrayList.get(i);
+                        if (loopData.getTableID().equals("4")) {
+                            reservation = loopData;
+                            break;
+                        }
+                    }
+                }
+                dialog.getData(table.get(3), user, reservation);
+                dialog.show(getSupportFragmentManager(), "Table dialog");
+                break;
+            case R.id.table5:
+                dialog = new Dialog_Table();
+                if (reservationArrayList != null && reservationArrayList.size() > 0) {
+                    for (int i = 0; i < reservationArrayList.size(); i++) {
+                        Reservation loopData = reservationArrayList.get(i);
+                        if (loopData.getTableID().equals("5")) {
+                            reservation = loopData;
+                            break;
+                        }
+                    }
+                }
+                dialog.getData(table.get(4), user, reservation);
+                dialog.show(getSupportFragmentManager(), "Table dialog");
+                break;
+            case R.id.table6:
+                dialog = new Dialog_Table();
+                if (reservationArrayList != null && reservationArrayList.size() > 0) {
+                    for (int i = 0; i < reservationArrayList.size(); i++) {
+                        Reservation loopData = reservationArrayList.get(i);
+                        if (loopData.getTableID().equals("6")) {
+                            reservation = loopData;
+                            break;
+                        }
+                    }
+                }
+                dialog.getData(table.get(5), user, reservation);
+                dialog.show(getSupportFragmentManager(), "Table dialog");
+                break;
+            case R.id.table7:
+                dialog = new Dialog_Table();
+                if (reservationArrayList != null && reservationArrayList.size() > 0) {
+                    for (int i = 0; i < reservationArrayList.size(); i++) {
+                        Reservation loopData = reservationArrayList.get(i);
+                        if (loopData.getTableID().equals("7")) {
+                            reservation = loopData;
+                            break;
+                        }
+                    }
+                }
+                dialog.getData(table.get(6), user, reservation);
+                dialog.show(getSupportFragmentManager(), "Table dialog");
+                break;
+            case R.id.table8:
+                dialog = new Dialog_Table();
+                if (reservationArrayList != null && reservationArrayList.size() > 0) {
+                    for (int i = 0; i < reservationArrayList.size(); i++) {
+                        Reservation loopData = reservationArrayList.get(i);
+                        if (loopData.getTableID().equals("8")) {
+                            reservation = loopData;
+                            break;
+                        }
+                    }
+                }
+                dialog.getData(table.get(7), user, reservation);
+                dialog.show(getSupportFragmentManager(), "Table dialog");
+                break;
+        }
+    }
+    public void changeTableStatus() {
+        int length = table.size();
+        for (int i = 0; i < length; i++) {
+            if (table.get(i).getStatus().equals("Available") || table.get(i).getStatus().equals("Calling")) {
+                String tableNum = "table" + table.get(i).getID();
+                int id = getResources().getIdentifier(tableNum, "id", getApplicationContext().getPackageName());
+                Button target = findViewById(id);
+                target.setBackgroundResource(R.color.available);
+            } else if (table.get(i).getStatus().equals("Seated")){
+                String tableNum = "table" + table.get(i).getID();
+                int id = getResources().getIdentifier(tableNum, "id", getApplicationContext().getPackageName());
+                Button target = findViewById(id);
+                target.setBackgroundResource(R.color.seated);
+            }
+        }
+    }
+    public void onClickRefresh(View v) {
+        getTableStatus();
+    }
+    public void onClickCreate(View v) {
+        Dialog_CreateWalkIn dialog_createWalkIn = new Dialog_CreateWalkIn();
+        dialog_createWalkIn.getData(user);
+        dialog_createWalkIn.show(getSupportFragmentManager(), "Create dialog");
+    }
+    public void onClickWaiter(View v) {
+        this.finish();
+        Intent intent = new Intent(TableStatus.this, Waiter.class);
+        intent.putExtra("firstName", user.firstName);
+        intent.putExtra("lastName", user.lastName);
+        intent.putExtra("email", user.email);
+        intent.putExtra("password", user.password);
+        intent.putExtra("id", user.accID);
+        intent.putExtra("phone", user.phone);
+        intent.putExtra("address", user.address);
+        intent.putExtra("restaurantId", user.restaurantID);
+        intent.putExtra("jobTitle", user.jobTitle);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+    public void onClickChef(View v) {
+        this.finish();
+        Intent intent = new Intent(TableStatus.this, Chef.class);
+        intent.putExtra("firstName", user.firstName);
+        intent.putExtra("lastName", user.lastName);
+        intent.putExtra("email", user.email);
+        intent.putExtra("password", user.password);
+        intent.putExtra("id", user.accID);
+        intent.putExtra("phone", user.phone);
+        intent.putExtra("address", user.address);
+        intent.putExtra("restaurantId", user.restaurantID);
+        intent.putExtra("jobTitle", user.jobTitle);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+}

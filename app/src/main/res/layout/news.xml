@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinatorLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".News">
+
+    <TextView
+        android:id="@+id/textView35"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/_news_foreground"
+        android:gravity="center"
+        android:text="News"
+        android:textColor="#000000"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/textView36"
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:background="#000000"
+        android:text="TextView" />
+
+    <ListView
+        android:id="@+id/lvNews"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:background="#000000"
+        android:text="TextView" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnNews"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center|end"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:drawableTop="@drawable/news_foreground"
+            android:minHeight="48dip"
+            android:text="News"
+            android:textAlignment="center"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btnMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center|end"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:drawableTop="@drawable/menu_foreground"
+            android:onClick="onClickMenu"
+            android:text="Menu"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btnNFC"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center|end"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:drawableTop="@drawable/nfc_foreground"
+            android:minHeight="108dip"
+            android:onClick="onClickNFC"
+            android:text="NFC"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/btnBooking"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center|end"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:drawableTop="@drawable/booking_foreground"
+            android:onClick="onClickBooking"
+            android:text="Booking seat"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btnAccount"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center|end"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:drawableTop="@drawable/account_foreground"
+            android:onClick="onClickAccount"
+            android:text="My account"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+</LinearLayout>

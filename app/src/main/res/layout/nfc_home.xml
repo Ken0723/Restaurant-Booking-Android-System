@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btnScan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/nfc_foreground"
+            android:text="Scan NFC!" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight=".70"
+                app:srcCompat="@drawable/booking_foreground" />
+
+            <TextView
+                android:id="@+id/tvReservationDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/dialog_calendar"
+                android:text="Reservation date:"
+                android:textColor="#000000"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvReservationTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/dialog_date"
+                android:text="Reservation time:"
+                android:textColor="#000000"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvTotalTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_access_alarm_black_24dp"
+                android:text="ToTal time:"
+                android:textColor="#000000"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvReservationId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_reservation_black_24dp"
+                android:text="Reservation ID: "
+                android:textColor="#000000"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvRestaurantId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/view_restaurant"
+                android:text="Restaurant ID:"
+                android:textColor="#000000"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvCustomerName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_person_black_24dp"
+                android:text="Customer name:"
+                android:textColor="#000000"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnStart"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/ic_start_black_24dp"
+            android:enabled="false"
+            android:onClick="onClickStart"
+            android:text="Start!" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnOrderFood"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:drawableTop="@drawable/ic_order_add_black_24dp"
+                android:enabled="false"
+                android:onClick="onClickOrderFood"
+                android:text="Order The Food" />
+
+            <Button
+                android:id="@+id/btnCallWaiter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:drawableTop="@drawable/ic_call_black_24dp"
+                android:enabled="false"
+                android:onClick="onClickCallWaiter"
+                android:text="Call Waiter" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnViewOrderedFood"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/ic_allorder_black_24dp"
+            android:enabled="false"
+            android:onClick="onClickViewAllOrderedFood"
+            android:text="View All Ordered Food" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView30"
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:background="#000000" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnNews"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center|end"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:drawableTop="@drawable/news_foreground"
+            android:minHeight="48dip"
+            android:onClick="onClickNews"
+            android:text="News"
+            android:textAlignment="center"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btnMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center|end"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:drawableTop="@drawable/menu_foreground"
+            android:onClick="onClickMenu"
+            android:text="Menu"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btnNFC"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center|end"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:drawableTop="@drawable/nfc_foreground"
+            android:minHeight="108dip"
+            android:text="NFC"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/btnBooking"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center|end"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:drawableTop="@drawable/booking_foreground"
+            android:onClick="onClickBooking"
+            android:text="Booking seat"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btnAccount"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center|end"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:drawableTop="@drawable/account_foreground"
+            android:onClick="onClickAccount"
+            android:text="My account"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+</LinearLayout>

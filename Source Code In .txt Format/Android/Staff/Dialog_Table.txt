@@ -1,0 +1,98 @@
+package com.example.staff;
+
+import android.app.ActionBar;
+import android.app.Activity;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDialogFragment;
+
+
+public class Dialog_Table extends AppCompatDialogFragment {
+
+    private Context pContext;
+    private User user;
+    private Table table;
+    private TextView tvTableSize, tvReservationID, tvStatus;
+    private Spinner spnStatus;
+    private Reservation reservation;
+    private Button btnOrderComplete;
+
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialog_table, null);
+        pContext = getContext();
+
+        tvTableSize = view.findViewById(R.id.txtTableSize);
+        tvReservationID = view.findViewById(R.id.tvReservationID);
+        tvStatus = view.findViewById(R.id.tvStatus);
+        spnStatus = view.findViewById(R.id.spnStatus);
+        btnOrderComplete = view.findViewById(R.id.btnOrderComplete);
+
+        tvReservationID.setText("Now Reservation ID: " + reservation.getReservationID());
+        tvTableSize.setText("Table Size: " + table.getTableSize());
+        tvStatus.setText(table.getStatus() + "(Now)");
+        builder.setView(view)
+                .setTitle("Table: " + table.getID())
+                .setNegativeButton("Close", null)
+                .setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String status = spnStatus.getSelectedItem().toString();
+                                String id = table.getID() + "";
+                                ServerRequests serverRequests = new ServerRequests(pContext);
+                                serverRequests.updateTableStatus(id, status, new UpdateTableStatusCallBack() {
+                                    @Override
+                                    public void done(Boolean isSuccess) {
+                                        if (isSuccess) {
+                                            Toast.makeText(pContext, "Updated!", Toast.LENGTH_SHORT).show();
+                                        } else{
+                                            Toast.makeText(pContext, "Update failed!", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                            }
+                        });
+        btnOrderComplete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                orderComplete();
+            }
+        });
+        return builder.create();
+    }
+    public void getData(Table tableData, User userData, Reservation gotReservation) {
+        table = tableData;
+        user = userData;
+        reservation = gotReservation;
+    }
+    public void orderComplete() {
+        if (reservation.getReservationID() != null && reservation.getReservationID().length() > 0) {
+            ServerRequests serverRequests = new ServerRequests(pContext);
+            serverRequests.finishOrder(reservation, new FinishOrderCallBack() {
+                @Override
+                public void done(Boolean isSuccess) {
+                    if(isSuccess) {
+                        Toast.makeText(pContext, "The order of " + reservation.getReservationID() + " is completed", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(pContext, "The order of " + reservation.getReservationID() + " is not completed", Toast.LENGTH_SHORT).show();
+
+                    }
+                }
+            });
+        } else {
+            Toast.makeText(pContext, "No reservation in this table", Toast.LENGTH_SHORT).show();
+        }
+    }
+}

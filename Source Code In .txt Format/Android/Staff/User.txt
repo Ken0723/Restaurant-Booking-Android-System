@@ -1,0 +1,72 @@
+package com.example.staff;
+
+public class User {
+    String accID, restaurantID, firstName, lastName, email, password, jobTitle, phone, address;
+
+    public User(String email, String password) {
+        this.firstName = "";
+        this.lastName = "";
+        this.accID = "";
+        this.email = email;
+        this.password = password;
+        this.phone = "";
+        this.address = "";
+        this.restaurantID = "";
+        this.jobTitle = "";
+    }
+
+    public User(String accID, String firstName, String lastName, String email, String password, String phone, String address, String jobTitle, String restaurantID) {
+        this.accID = accID;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.phone = phone;
+        this.address = address;
+        this.restaurantID = restaurantID;
+        this.jobTitle = jobTitle;
+    }
+    public String getAccID() {return this.accID;}
+    public String getFirstName() {
+        return this.firstName;
+    }
+    public String getLastName() {
+        return this.lastName;
+    }
+    public String getEmail() {
+        return this.email;
+    }
+    public String getPassword() {
+        return this.password;
+    }
+    public String getPhone() { return  this.phone; }
+    public String getAddress() { return this.address; }
+    public String getRestaurantID() {
+        return this.restaurantID;
+    }
+    public String getJobTitle() {
+        return this.jobTitle;
+    }
+
+    public void setAccID(String id) { accID = id;}
+    public void setFirstName(String sName) {
+        firstName = sName;
+    }
+    public void setLastName(String sName) {
+        lastName = sName;
+    }
+    public void setEmail(String sEmail) {
+        email = sEmail;
+    }
+    public void setPassword(String sPassword) {
+        password = sPassword;
+    }
+    public void setPhone(String sPhone) { phone = sPhone; }
+    public void setAddress(String sAddress) { address = sAddress; }
+    public void setRestaurantID(String sRestaurantID) {
+        restaurantID = sRestaurantID;
+    }
+    public void setJobTitle(String sJobTitle)  {
+        jobTitle = sJobTitle;
+    }
+}

@@ -1,0 +1,40 @@
+package com.example.staff;
+
+import java.util.ArrayList;
+
+interface GetUserCallBack {
+    public abstract void done(User user);
+}
+interface GetCallingAndFoodServedCallBack {
+    public abstract void done(ArrayList arrayList);
+}
+interface GetCallingFinishCallBack {
+    public abstract void done(Boolean isSuccess);
+}
+interface GetServiceFinishCallBack {
+    public abstract void done(Boolean isSuccess);
+}
+interface GetAllFoodCallBack {
+    public abstract void done(ArrayList arrayList);
+}
+interface GetOrderedFoodCallBack {
+    public abstract void done(ArrayList arrayList);
+}
+interface GetFinishCookingCallBack {
+    public abstract void done(Boolean isSuccess);
+}
+interface GetTableCallBack {
+    public abstract void done(ArrayList arrayList);
+}
+interface UpdateTableStatusCallBack {
+    public abstract void done(Boolean isSuccess);
+}
+interface CreateWalkInCallBack {
+    public abstract void done(Boolean isSuccess);
+}
+interface GetAllStartingReservationCallBack {
+    public abstract void done(ArrayList arrayList);
+}
+interface FinishOrderCallBack {
+    public abstract void done(Boolean isSuccess);
+}

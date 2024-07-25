@@ -1,0 +1,83 @@
+<template>
+    <Page>
+        <ActionBar title="FYP" />
+        <StackLayout class="home-panel">
+            <Image src="~/assets/loginpage.png" width="200" height="200" />
+            <Label />
+            <Label text="PPM Buffet Manager System" class="h2 text-center" />
+            <Label text="Please login!" color="red" />
+            <Label />
+            <TextField v-model="email" hint="Enter Email..." />
+            <TextField v-model="password" hint="Enter Password..."
+                secure="true" />
+            <Label />
+            <Button text="Login" color="blue" @tap="onLoginTap" />
+            <Label />
+            <Label text="*No accoount? Create one on our website!"
+                fontSize="15" color="red" style.textAlignment="center" />
+        </StackLayout>
+    </Page>
+</template>
+
+<script>
+    const httpModule = require("tns-core-modules/http");
+    import MainPage from "./mainpage";
+    var URL = "http://54.86.209.59/native/";
+    var login = false;
+
+    export default {
+        methods: {
+            printMessage(_title, _message, _btnText) {
+                alert({
+                    title: _title,
+                    message: _message,
+                    okButtonText: _btnText
+                }).then(() => {
+                    console.log("Alert dialog closed");
+                });
+            },
+            onLoginTap() {
+                httpModule.getJSON(URL + this.email + ".json").then(
+                    r => {
+                        if (this.email == r.email && this.password == r
+                            .password) {
+                            global.username = r.username;
+                            this.$navigateTo(MainPage);
+                            login = true;
+                            this.printMessage(
+                                "Welcome",
+                                "Welcome back, " + global.username,
+                                "Okay!"
+                            );
+                        } else {
+                            this.printMessage(
+                                "Login Failed",
+                                "Your email or password is incorrect!",
+                                "Try again!"
+                            );
+                        }
+                    },
+                    e => {
+                        console.log(e);
+                    }
+                );
+            }
+        },
+
+        data() {
+            return {};
+        }
+    };
+</script>
+
+<style scoped>
+    .home-panel {
+        vertical-align: center;
+        font-size: 20;
+        margin: 15;
+    }
+
+    .description-label {
+        margin-bottom: 15;
+    }
+</style>

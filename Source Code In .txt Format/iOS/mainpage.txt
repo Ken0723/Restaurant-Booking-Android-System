@@ -1,0 +1,452 @@
+<template>
+    <Page loaded="pageLoaded">
+        <ActionBar title="FYP" />
+
+        <StackLayout>
+            <BottomNavigation>
+                <TabStrip>
+                    <TabStripItem>
+                        <Label text="Home"></Label>
+                        <Image src="res://home"></Image>
+                    </TabStripItem>
+                    <TabStripItem @tap="news">
+                        <Label text="News"></Label>
+                        <Image src="res://browse"></Image>
+                    </TabStripItem>
+                    <TabStripItem @tap="food">
+                        <Label text="Menu"></Label>
+                        <Image src="res://favorites"></Image>
+                    </TabStripItem>
+                    <TabStripItem @tap="seat">
+                        <Label text="Seat Status"></Label>
+                        <Image src="res://search"></Image>
+                    </TabStripItem>
+                    <TabStripItem @tap="account">
+                        <Label text="My Account"></Label>
+                        <Image src="res://settings"></Image>
+                    </TabStripItem>
+                </TabStrip>
+                <TabContentItem>
+                    <StackLayout>
+                        <Label text="Home Page" class="h2 text-center"
+                            fontSize="25">
+                        </Label>
+                        <Label />
+                        <Label text="Welcome back!" class="h2 text-center"
+                            fontSize="20">
+                        </Label>
+                    </StackLayout>
+                </TabContentItem>
+                <TabContentItem>
+                    <StackLayout>
+                        <Label text="News" class="h2 text-center"
+                            font-size="25">
+                        </Label>
+
+                        <ListView for="news in newss" @itemTap="onNewsTap"
+                            style="height:1250px">
+                            <v-template>
+                                <FlexboxLayout flexDirection="row">
+                                    <Label :text="news.name" class="t-12"
+                                        style="width: 100%" fontSize="20" />
+                                </FlexboxLayout>
+                            </v-template>
+                        </ListView>
+                    </StackLayout>
+                </TabContentItem>
+                <TabContentItem>
+                    <StackLayout>
+                        <Label text="Menu Page" class="h2 text-center">
+                        </Label>
+
+                        <ListView for="food in foods" @itemTap="onFoodTap"
+                            style="height:1250px">
+                            <v-template>
+                                <FlexboxLayout flexDirection="row">
+                                    <Label :text="food.name" class="t-12"
+                                        style="width: 100%" fontSize="20" />
+                                </FlexboxLayout>
+                            </v-template>
+                        </ListView>
+                    </StackLayout>
+                </TabContentItem>
+                <TabContentItem>
+                    <StackLayout>
+                        <Label text="Seat Page" class="h2 text-center">
+                        </Label>
+                        <Label text="Current Seat Status"
+                            class="h2 text-center" fontSize="20">
+                        </Label>
+
+                        <WrapLayout orientation="horizontal">
+                            <Label text="1" fontSize="15" />
+                            <Image src="~/assets/chair.png"
+                                :backgroundColor="seat1.color" width="100"
+                                height="100" @tap="seat1Click" />
+                            <Label text="2" fontSize="15" />
+                            <Image src="~/assets/chair.png"
+                                :backgroundColor="seat2.color" width="100"
+                                height="100" @tap="seat2Click" />
+                            <Label text="3" fontSize="15" />
+                            <Image src="~/assets/chair.png"
+                                :backgroundColor="seat3.color" width="100"
+                                height="100" @tap="seat3Click" />
+                        </WrapLayout>
+                        <Label />
+                        <WrapLayout orientation="horizontal">
+                            <Label text="4" fontSize="15" />
+                            <Image src="~/assets/chair.png"
+                                :backgroundColor="seat4.color" width="100"
+                                height="100" @tap="seat4Click" />
+                            <Label text="5" fontSize="15" />
+                            <Image src="~/assets/chair.png"
+                                :backgroundColor="seat5.color" width="100"
+                                height="100" @tap="seat5Click" />
+                            <Label text="6" fontSize="15" />
+                            <Image src="~/assets/chair.png"
+                                :backgroundColor="seat6.color" width="100"
+                                height="100" @tap="seat6Click" />
+                        </WrapLayout>
+                        <Label />
+                        <WrapLayout orientation="horizontal">
+                            <Label text="7" fontSize="15" />
+                            <Image src="~/assets/chair.png"
+                                :backgroundColor="seat7.color" width="100"
+                                height="100" @tap="seat7Click" />
+                            <Label text="8" fontSize="15" />
+                            <Image src="~/assets/chair.png"
+                                :backgroundColor="seat8.color" width="100"
+                                height="100" @tap="seat8Click" />
+                            <Label />
+                        </WrapLayout>
+                    </StackLayout>
+                </TabContentItem>
+                <TabContentItem>
+                    <StackLayout>
+                        <Label text="User Profile" class="h2 text-center"
+                            fontSize="25">
+                        </Label>
+                        <Label />
+                        <Label text="Email" fontSize="20" />
+                        <Label :text="useremail" fontSize="20" />
+                        <Label />
+                        <Label text="Last Name" fontSize="15" />
+                        <Label :text="userlastname" fontSize="20" />
+                        <Label />
+                        <Label text="First Name" fontSize="20" />
+                        <Label :text="userfirstname" fontSize="20" />
+                        <Label />
+                        <Label text="Phone Number" fontSize="20" />
+                        <Label :text="userphonenumber" fontSize="20" />
+                        <Label />
+                        <Label text="Address" fontSize="20" />
+                        <Label :text="useraddress" fontSize="20" />
+                        <Label />
+                    </StackLayout>
+                </TabContentItem>
+            </BottomNavigation>
+        </StackLayout>
+    </Page>
+</template>
+
+<script>
+    const httpModule = require("tns-core-modules/http");
+    var URL = "http://54.86.209.59/native/";
+
+    export default {
+        methods: {
+            onButtonTap() {
+                console.log("Button was pressed");
+            },
+
+            printMessage(_title, _message, _btnText) {
+                alert({
+                    title: _title,
+                    message: _message,
+                    okButtonText: _btnText
+                }).then(() => {
+                    console.log("Alert dialog closed");
+                });
+            },
+            onNewsTap: function(args) {
+                this.printMessage(
+                    this.newss[args.index].name,
+                    this.newss[args.index].description,
+                    "Okay!"
+                );
+            },
+            onFoodTap: function(args) {
+                this.printMessage(
+                    this.foods[args.index].name,
+                    this.foods[args.index].description,
+                    "Okay!"
+                );
+            },
+
+            account() {
+                httpModule.getJSON(URL + global.username + "profile.json")
+                    .then(
+                        r => {
+                            this.useremail = r.email;
+                            this.userlastname = r.lastname;
+                            this.userfirstname = r.firstname;
+                            this.userphonenumber = r.phonenumber;
+                            this.useraddress = r.address;
+                        },
+                        e => {
+                            console.log(e);
+                        }
+                    );
+            },
+
+            news() {
+                httpModule.getJSON(URL + "news.json").then(
+                    r => {
+                        this.newss[0].name = r[0].name;
+                        this.newss[1].name = r[1].name;
+                        this.newss[0].description = r[0].description;
+                        this.newss[1].description = r[1].description;
+                    },
+                    e => {
+                        console.log(e);
+                    }
+                );
+            },
+            food() {
+                httpModule.getJSON(URL + "food.json").then(
+                    r => {
+                        this.foods[0].name = r[0].name;
+                        this.foods[1].name = r[1].name;
+                        this.foods[2].name = r[2].name;
+                        this.foods[0].description = r[0].description;
+                        this.foods[1].description = r[1].description;
+                        this.foods[2].description = r[2].description;
+                    },
+                    e => {
+                        console.log(e);
+                    }
+                );
+            },
+            seat() {
+                httpModule.getJSON(URL + "seat.json").then(
+                    r => {
+                        this.seat1.color = r[0].color;
+                        this.seat1.size = r[0].size;
+                        if (r[0].color == "red") {
+                            this.seat1.status = "Seated";
+                        } else {
+                            this.seat1.status = "Available";
+                        }
+                        this.seat2.color = r[1].color;
+                        this.seat2.size = r[1].size;
+                        if (r[1].color == "red") {
+                            this.seat2.status = "Seated";
+                        } else {
+                            this.seat2.status = "Available";
+                        }
+                        this.seat3.color = r[2].color;
+                        this.seat3.size = r[2].size;
+                        if (r[2].color == "red") {
+                            this.seat3.status = "Seated";
+                        } else {
+                            this.seat3.status = "Available";
+                        }
+                        this.seat4.color = r[3].color;
+                        this.seat4.size = r[3].size;
+                        if (r[3].color == "red") {
+                            this.seat4.status = "Seated";
+                        } else {
+                            this.seat4.status = "Available";
+                        }
+                        this.seat5.color = r[4].color;
+                        this.seat5.size = r[4].size;
+                        if (r[4].color == "red") {
+                            this.seat5.status = "Seated";
+                        } else {
+                            this.seat5.status = "Available";
+                        }
+                        this.seat6.color = r[5].color;
+                        this.seat6.size = r[5].size;
+                        if (r[5].color == "red") {
+                            this.seat6.status = "Seated";
+                        } else {
+                            this.seat6.status = "Available";
+                        }
+                        this.seat7.color = r[6].color;
+                        this.seat7.size = r[6].size;
+                        if (r[6].color == "red") {
+                            this.seat7.status = "Seated";
+                        } else {
+                            this.seat7.status = "Available";
+                        }
+                        this.seat8.color = r[7].color;
+                        this.seat8.size = r[7].size;
+                        if (r[7].color == "red") {
+                            this.seat8.status = "Seated";
+                        } else {
+                            this.seat8.status = "Available";
+                        }
+                    },
+                    e => {
+                        console.log(e);
+                    }
+                );
+            },
+            seat1Click() {
+                this.printMessage(
+                    "Seat 1",
+                    "Size: " + this.seat1.size + "\nStatus: " + this.seat1
+                    .status,
+                    "Okay!"
+                );
+            },
+            seat2Click() {
+                this.printMessage(
+                    "Seat 2",
+                    "Size: " + this.seat2.size + "\nStatus: " + this.seat2
+                    .status,
+                    "Okay!"
+                );
+            },
+            seat2Click() {
+                this.printMessage(
+                    "Seat 2",
+                    "Size: " + this.seat2.size + "\nStatus: " + this.seat2
+                    .status,
+                    "Okay!"
+                );
+            },
+            seat3Click() {
+                this.printMessage(
+                    "Seat 3",
+                    "Size: " + this.seat3.size + "\nStatus: " + this.seat3
+                    .status,
+                    "Okay!"
+                );
+            },
+            seat4Click() {
+                this.printMessage(
+                    "Seat 4",
+                    "Size: " + this.seat4.size + "\nStatus: " + this.seat4
+                    .status,
+                    "Okay!"
+                );
+            },
+            seat5Click() {
+                this.printMessage(
+                    "Seat 5",
+                    "Size: " + this.seat5.size + "\nStatus: " + this.seat5
+                    .status,
+                    "Okay!"
+                );
+            },
+            seat6Click() {
+                this.printMessage(
+                    "Seat 6",
+                    "Size: " + this.seat6.size + "\nStatus: " + this.seat6
+                    .status,
+                    "Okay!"
+                );
+            },
+            seat7Click() {
+                this.printMessage(
+                    "Seat 7",
+                    "Size: " + this.seat7.size + "\nStatus: " + this.seat7
+                    .status,
+                    "Okay!"
+                );
+            },
+            seat8Click() {
+                this.printMessage(
+                    "Seat 8",
+                    "Size: " + this.seat8.size + "\nStatus: " + this.seat8
+                    .status,
+                    "Okay!"
+                );
+            }
+        },
+        data() {
+            return {
+                newss: [{
+                        name: "News1",
+                        description: "loading..."
+                    },
+                    {
+                        name: "News2",
+                        description: "loading..."
+                    }
+                ],
+                foods: [{
+                        name: "Food1",
+                        description: "loading..."
+                    },
+                    {
+                        name: "Food2",
+                        description: "loading..."
+                    },
+                    {
+                        name: "Food3",
+                        description: "loading..."
+                    }
+                ],
+                seat1: {
+                    color: "",
+                    status: "",
+                    size: ""
+                },
+                seat2: {
+                    color: "",
+                    status: "",
+                    size: ""
+                },
+                seat3: {
+                    color: "",
+                    status: "",
+                    size: ""
+                },
+                seat4: {
+                    color: "",
+                    status: "",
+                    size: ""
+                },
+                seat5: {
+                    color: "",
+                    status: "",
+                    size: ""
+                },
+                seat6: {
+                    color: "",
+                    status: "",
+                    size: ""
+                },
+                seat7: {
+                    color: "",
+                    status: "",
+                    size: ""
+                },
+                seat8: {
+                    color: "",
+                    status: "",
+                    size: ""
+                },
+                useremail: "loading...",
+                userlastname: "loading...",
+                userfirstname: "loading...",
+                userphonenumber: "loading...",
+                useraddress: "loading..."
+            };
+        }
+    };
+</script>
+
+<style scoped>
+    .home-panel {
+        vertical-align: center;
+        font-size: 20;
+        margin: 15;
+    }
+
+    .description-label {
+        margin-bottom: 15;
+    }
+</style>
